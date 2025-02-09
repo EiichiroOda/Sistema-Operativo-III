@@ -1,0 +1,25 @@
+Comando usado para la practica 2.1
+============================================
+Yum update (Actualizar repositories)
+Yum upgrade (Aplicar a los repositories)
+yum repolist (Ver repositories en usos)
+yum repolist all (Ver todos los repositories)
+yum search bashtop
+git clone https://github.com/aristocratos/bashtop.git
+cd bashtop
+sudo make install
+sudo make uninstall
+yum clear all
+============================================
+Comando usado para la practica 2.2
+
+crontab -e
+0 23 * * root yum update -y
+crontab -l
+0 3 * * * /sbin/shutdown -r - now
+
+at now +1 minute
+rm -rf/tmp/*
+control + e
+cd /tmp
+ls
