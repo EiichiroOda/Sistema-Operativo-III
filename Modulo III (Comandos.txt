@@ -1,0 +1,61 @@
+Practica 1: Comandos
+---------------------------------------------------------------------
+- Su
+- cd /etc/default
+- ls
+- vi grub
+- grub2-mkconfig -o /boot/grub2/grub.cfg
+- reboot
+
+rd.break
+mount -o remount,rw /sysroot  
+- chroot /sysroot/
+- passwd root
+- touch /.autorelabel
+- exit
+----------------------------------------------------------------------
+Practica 2: Comandos
+
+- dnf install -y openssh -server
+- systemctl startssshd
+- systemctl status sshd
+- ssh [usuario]@ip
+
+- ssh-keygen -t rsa -b 1024
+- mkdir -p ~/.ssh
+- touch ~/.ssh/authorized_keys
+- echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDZYwRraJkM4rU9i6JC5Mq9uXEh/8orOrq22wSD7aHjNj5IKBDtTrnZ7JVOUGLH3LBFTt4ZX/zp9Hw1FJfQlMhL7tbdRNrtJ3B4U89PQL7k9zg/oq8UGJUbP1ObCK5iWrhxOCH0BTdwWE40NHsQ7uYh28usqmNtd89BVUsD2Y/vsw== wilmer de jesus@Wilmers_Laptop >> ~/.ssh/authorized_keys
+--------------------------------------------------------------------------
+Practica 3: Comandos
+
+vi backup.ssh
+#!/bin/bash
+
+# Definir el directorio
+DIRECTORIO=:"/home/wbocio"
+#Obtener la fecha
+Fecha_Hora=$(date + "%d-%m-%y_%H-%M")
+#Nombre del archivo
+NOMBRE_BACKUP="backup_$Fecha_Hora.tar.gz"
+
+Tar -czvf $NOMBRE_BACKUP $DIRECTORIO
+
+chmod +x backup.sh
+./backup.sh
+
+----------------------------
+vi ifconfig_copia.sh
+#!/bin/bash
+
+#Preguntar nombre
+echo "Dime que nombre necesitas asignarle a tu archive"
+read  Nombre_archivo
+# Definir ruta
+Escritorio="/home/wbocio/Desktop"
+#Crear Archivoo
+Archivo= "$Escritorio/$nombre_archivo.txt
+#ejecutar
+ifconfig > $Archivo
+echo "El resultado es exitoso y se ha guardado exitosamente en: $Archivo 
+
+
