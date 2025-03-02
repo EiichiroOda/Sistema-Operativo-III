@@ -1,0 +1,35 @@
+Practica 1 -commandos
+
+yum install httpd -y
+systemctl enable httpd  
+systemctl status httpd
+systemctl restart httpd
+nano /var/www/html/index.html
+mkidr /var/www/datosp
+nano /var/www/datos-personales/index.html
+vi /etc/httpd/conf.d/httpd.conf
+vi /etc/httpd/conf.d/vhost8080.conf
+-------------------------------------------------------------------------------------------------------
+Practica 2 - Comandos
+
+yum install install postfix mail cyrus-sasl cyrus-sasl-plain 
+cd  /etc/postfix
+nano sasl_passwd
+postmap sasl_passwd
+ls -lrth
+chmod 600 sasl_passwd  
+cp main.cf main.cf.bkp
+vi main.cf
+systemctl restart postfix
+Echo "Wilmer de Jesus - 20241137" | mail -s "MambruSeFueALaGuerra" os3conadrian@gmail.com
+---------------------------------------------------------------------------------------------------------
+Practica 3 - commandos
+
+su
+yum install cups - y
+cd /etc/yum.repos.d/
+wget https://download.opensuse.org/repositories/isv:perlur:epel/RHEL_7/isv:perlur:epel.repo
+yum install cups-pdf
+nano /etc/cups/cupsd.conf
+systemctl restart cups
+
