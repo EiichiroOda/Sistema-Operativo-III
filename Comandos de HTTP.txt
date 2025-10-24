@@ -1,0 +1,76 @@
+# 1️⃣ Actualizar repositorios y paquetes (como root o con sudo)
+sudo apt update && sudo apt upgrade -y
+
+# 2️⃣ Instalar Apache
+sudo apt install apache2 -y
+
+# 3️⃣ Verificar si Apache está activo
+sudo systemctl status apache2
+
+# 4️⃣ Verificar si Apache escucha en los puertos
+sudo ss -tulpn | grep apache2
+
+# 5️⃣ Configurar ServerName para evitar warnings
+echo "ServerName localhost" | sudo tee -a /etc/apache2/apache2.conf
+
+# 6️⃣ Crear carpetas para los Virtual Hosts
+sudo mkdir -p /var/www/practica       # Para puerto 80
+sudo mkdir -p /var/www/mipagina       # Para puerto 8080
+
+# 7️⃣ Crear contenido HTML
+echo "Hola Mundo" | sudo tee /var/www/practica/index.html
+echo "Nombre: Wilmer, Matrícula: 123456, Materia: SO3" | sudo tee /var/www/mipagina/index.html
+
+# 8️⃣ Crear Virtual Host para puerto 80
+sudo nano /etc/apache2/sites-available/practica.conf
+# Contenido del archivo:
+# <VirtualHost *:80>
+#     ServerAdmin webmaster@localhost
+#     DocumentRoot /var/www/practica
+#     ErrorLog ${APACHE_LOG_DIR}/practica_error.log
+#     CustomLog ${APACHE_LOG_DIR}/practica_access.log combined
+# </VirtualHost>
+
+# 9️⃣ Crear Virtual Host para puerto 8080
+sudo nano /etc/apache2/sites-available/mipagina.conf
+# Contenido del archivo:
+# <VirtualHost *:8080>
+#     ServerAdmin webmaster@localhost
+#     DocumentRoot /var/www/mipagina
+#     ErrorLog ${APACHE_LOG_DIR}/mipagina_error.log
+#     CustomLog ${APACHE_LOG_DIR}/mipagina_access.log combined
+# </VirtualHost>
+
+# 10️⃣ Configurar Apache para escuchar en ambos puertos
+sudo nano /etc/apache2/ports.conf
+# Asegurarse que contenga:
+# Listen 80
+# Listen 8080
+
+# 11️⃣ Habilitar Virtual Hosts y deshabilitar el sitio por defecto
+sudo a2dissite 000-default.conf
+sudo a2ensite practica.conf
+sudo a2ensite mipagina.conf
+
+# 12️⃣ Reiniciar Apache para aplicar cambios
+sudo systemctl restart apache2
+
+# 13️⃣ Probar los sitios
+curl http://localhost        # Debe mostrar "Hola Mundo"
+curl http://localhost:8080   # Debe mostrar "Nombre, Matrícula, Materia"
+
+# 14️⃣ Verificar logs en caso de problemas
+sudo tail -f /var/log/apache2/error.log
+sudo tail -f /var/log/apache2/access.log
+
+# 15️⃣ Comandos útiles adicionales
+# Verificar IP de la VM
+ip addr show
+
+# Verificar conectividad
+ping -c 3 192.168.X.X      # IP de tu VM o gateway
+ping -c 3 8.8.8.8          # Ping externo para comprobar Internet
+
+# Cambiar a modo bridge (si no hay conexión) y asignar IP estática
+sudo nano /etc/network/interfaces   # Configurar IP estática en eth0 (opcional)
+sudo systemctl restart networking

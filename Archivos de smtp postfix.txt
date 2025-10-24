@@ -1,0 +1,55 @@
+# ============================================
+# CONFIGURACIÓN DE POSTFIX CON GMAIL (Ubuntu)
+# ============================================
+
+# Instalar Postfix y Mailutils
+sudo apt update
+sudo apt install postfix mailutils -y
+
+# Configurar Postfix interactivamente
+sudo dpkg-reconfigure postfix
+# → Tipo: "Internet Site"
+# → Nombre del correo: ejemplo.com (o tu dominio)
+# → Resto dejar por defecto
+
+# Crear carpeta para autenticación SASL
+sudo mkdir -p /etc/postfix/sasl
+
+# Crear archivo de credenciales SMTP
+sudo nano /etc/postfix/sasl/sasl_passwd
+# [smtp.gmail.com]:587 usuario@gmail.com:contraseña_o_contraseña_de_aplicación
+
+#  Generar el hash del archivo de contraseñas
+sudo postmap /etc/postfix/sasl/sasl_passwd
+
+#Asegurar permisos
+sudo chmod 600 /etc/postfix/sasl/sasl_passwd
+sudo chmod 600 /etc/postfix/sasl/sasl_passwd.db
+
+# Eitar el archivo de configuración principal de Postfix
+sudo nano /etc/postfix/main.cf
+# Añadir o editar las siguientes líneas:
+
+# --- INICIO DE CONFIG SMTP GMAIL ---
+relayhost = [smtp.gmail.com]:587
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_tls_security_level = encrypt
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+# --- FIN CONFIG SMTP GMAIL ---
+
+#Reiniciar postfix para aplicar los cambios
+sudo systemctl restart postfix
+
+# Verificar el estado del servicio
+sudo systemctl status postfix
+
+# robar el envío de un correo
+echo "Hola, esto es una prueba" | mail -s "Prueba de Postfix" wilmerbocio04@gmail.com
+
+# Ver logs en tiempo real (útil para debug)
+sudo journalctl -u postfix -f
+
+# Si hay mensajes en cola, reenviarlos
+sudo postqueue -f
