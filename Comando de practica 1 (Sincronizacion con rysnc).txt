@@ -1,0 +1,67 @@
+====================================================================================================
+
+Comandos de practica 2 (Sincronizacion de servidores con rsyncs
+
+====================================================================================================
+sudo apt update && apt upgrade (Actualizar repositorios)
+
+sudo systemctl status ssh
+
+sudo systemctl start ssh
+
+sudo ss -tulnp | grep ssh
+
+apt-cache policy nombre-del-paquetewh
+
+which rsync
+
+ssh usuario@ip (Comprobar que podamos acceder a ssh)
+
+mkdir -p ~/carpeta_sincronizada (Crear carpeta)
+
+cd ~/carpeta_sincronizada (Dirigirnos a la carpeta)
+
+touch file{1..100}.txt (Crear los 100 archivos)
+
+ls (Comprobar los 100 archivos)
+
+rsync -avz ~/carpeta_sincronizada/ usuario@ip:/home/usuario/carpeta_sincronizada
+
+ssh-keygen -t rsa
+
+cat /home/wilmer_so3/.ssh/id_rsa
+
+ssh-copy-id wilmer_so3@192.168.100.170
+
+sudo hostnamectl set-hostname Servidor_clon
+
+Hostname
+
+exec bash
+
+nano /home/wilmer_so3/sincronizacion.sh
+
+Script de sincronizacion
+=================================================================================
+
+#!/bin/bash
+
+Origen="/home/wilmer_so3/carpeta_sincronizada/"
+Destino="wilmer_so3@192.168.100.170:/home/wilmer_so3/carpeta_sincronizada/"
+
+echo "===== Sincronización iniciada: $(date) =====" >> /home/wilmer_so3/rsync.log
+
+rsync -avz --delete "$Origen" "$Destino" >> /home/wilmer_so3/rsync.log 2>&1
+==================================================================================
+
+chmod +x /home/wilmer_so3/sync_rsync.sh
+cat /home/wilmer_so3/rsync.log
+
+crontab -e
+* * * * * /home/wilmer_so3/sincronizacion.sh
+
+
+
+
+
+

@@ -1,0 +1,45 @@
+# Cambiar hostname
+sudo hostnamectl set-hostname kali       # nodo 1
+sudo hostnamectl set-hostname wilmerso3clon  # nodo 2
+
+# Editar /etc/hosts
+sudo nano /etc/hosts
+# Añadir algo como:
+127.0.0.1       localhost
+192.168.100.160 kali
+192.168.100.170 wilmerso3clon
+
+sudo apt update
+sudo apt install heartbeat
+sudo systemctl enable heartbeat
+sudo systemctl start heartbeat
+
+sudo nano /etc/ha.d/ha.d.cf
+
+logfile /var/log/ha-log
+keepalive 2
+deadtime 10
+udpport 694
+ucast eth0 192.168.100.160
+ucast eth0 192.168.100.170
+auto_failback off
+node kali
+node wilmerso3clon
+
+/etc/ha.d/haresources
+kali1 192.168.100.200/24 eth0t
+
+
+sudo nano /etc/ha.d/authkeys
+sudo nano /etc/ha.d/authkeys
+
+auth 1
+1 sha1 wilmer123
+
+sudo systemctl restart heartbeat
+sudo systemctl status heartbeat
+# Comprobar logs
+tail -f /var/log/ha-log
+
+
+sudo apt install heartbeat
