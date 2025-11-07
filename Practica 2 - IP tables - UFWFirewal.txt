@@ -1,0 +1,41 @@
+Practica 2 - IP tables - UFW/Firewall-cmd 
+
+
+sudo apt install apache2 vsftpd openssh-server -y # Instalamos servicios si no lo tenemos activos
+sudo systemctl start apache2 #Iniciamos los servicios
+sudo systemctl start vsftpd
+sudo systemctl start ssh
+===========================
+Verificamos el status
+sudo systemctl status apache2
+sudo systemctl status vsftpd
+sudo systemctl status ssh
+============================
+sudo ss -tuln | grep -E ':80|:21|:22' # Comprobar los puertos en uso 
+
+sudo iptables -A INPUT -p tcp --dport 80 -j DROP #Denegar trafico 
+sudo iptables -A INPUT -p tcp --dport 21 -j DROP
+sudo iptables -A INPUT -p tcp --dport 22 -j DROP
+
+sudo iptables -L -n --line-numbers #Comprobar las reglas
+
+sudo iptables -I INPUT 1 -p tcp --dport 22 -j ACCEPT #Aceptar trafico por esos puertos
+sudo iptables -I INPUT 1 -p tcp --dport 21 -j ACCEPT
+sudo iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT
+
+sudo iptables -F
+sudo iptables -X
+sudo ufw reset
+
+sudo apt install ufw -y #Instalar ufw 
+sudo ufw enable
+
+sudo ufw deny 80/tcp #Denegar el trafico con ufw
+sudo ufw deny 21/tcp
+sudo ufw deny 22/tcp
+
+sudo ufw status verbose # Ver estado de los comandos
+
+sudo ufw allow 80/tcp # Permitir el trafico nuevamente
+sudo ufw allow 21/tcp
+sudo ufw allow 22/tcp

@@ -1,0 +1,9 @@
+Practica 1 - Cifrado 1pts
+
+sudo apt install -y gnupg2
+echo "Este es un archivo secreto" > archivo.txt
+gpg2 -c archivo.txt              # cifrado simétrico
+rm archivo.txt                    # opcional, eliminar original
+gpg2 -d archivo.txt.gpg           # descifrado
+gpg2 -d archivo.txt.gpg > archivo_descifrado.txt  # guardar descifrado
+cat archivo_descifrado.txt #Ver contenido de archivo 
