@@ -1,0 +1,60 @@
+sudo nano /etc/hosts
+192.168.100.238 dc.os3.intet 
+sudo hostnamectl set-hostname dc.os3.inet 
+sudo hostnamectl 
+ping dc.os3.inet 
+- sudo apt install samba -y 
+
+sudo nano /etc/krb5.conf
+[libdefaults]
+    default_realm = OS3.INET
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+ 
+ 
+[realms]
+    OS3.INET = {
+        kdc = dc.os3.inet
+        admin_server = dc.os3.inet
+    }
+ 
+[domain_realm]
+    .os3.inet = OS3.INET
+    os3.inet = OS3.INET
+
+
+sudo samba-tool domain provision --use-rfc2307 --interactive
+	
+
+sudo samba-tool domain provision --use-rfc2307 --interactive
+Realm: OS3.INET
+Domain: OS3
+Server Role: dc
+DNS backend: SAMBA_INTERNAL
+DNS forwarder IP address: 8.8.8.8 
+Administrator password: Teletubies123
+
+sudo systemctl restart samba-ad-dc
+sudo systemctl status samba-ad-dc
+
+----------------------------------------------
+Comando samba:
+
+- sudo samba-tool user list #Ver usuarios
+  sudo samba-tool user enable juan
+
+
+
+--------------------------------------------
+Comprobar DNS y configuraciones:
+
+- host OS3.INET
+- nslookup OS3.INET
+- nslookup IP_Maquina OS3.INET
+- host -t SRV _ldap._tcp.dc._msdcs.os3.inet
+- host -t SRV _kerberos._tcp.dc._msdcs.os3.inet
+- nslookup dc.os3.inet
+- dig @127.0.0.1 dc.os3.inet A
+- kinit Administrator
+  klist
+- sudo netstat -tulnp | grep -E '53|88|389'

@@ -1,0 +1,35 @@
+sudo apt update
+sudo apt install nfs‑kernel‑server -y        # instalar servidor NFS  
+sudo mkdir -p /srv/OS3                        # crear directorio compartido  
+cd /srv/OS3_Miercoles
+touch Adrian{1..100}.txt # crear 100 archivos  
+sudo chown -R nobody:nogroup /srv/OS3         # asignar propietario  
+sudo chmod -R 755 /srv/OS3                     # asignar permisos  
+sudo nano /etc/exports                         # editar fichero de exportaciones  
+# añadir en /etc/exports:  
+# /srv/OS3_Mierco *(rw,sync,no_subtree_check)  
+sudo exportfs -ra                              # aplicar cambios  
+sudo systemctl restart nfs‑kernel‑server       # reiniciar servicio  
+sudo exportfs -v                              # comprobar exportaciones  
+
+------------------------------------------------------------------------
+
+sudo apt update
+sudo apt install nfs‑common -y           # instalar cliente NFS  
+sudo mkdir -p /srv/SO3         # crear punto de montaje  
+sudo mount 10.0.0.170:/srv/OS3 /srv/SO3  # montar recurso compartido  
+ls /srv/OS3                              # listar archivos y comprobar que estén  
+sudo nano /etc/fstab                     # editar para montaje automático  
+# añadir en /etc/fstab:  
+# 10.0.0.170:/srv/OS3   /srv/SO3  nfs   defaults   0   0  
+sudo mount -a                            # probar que sin reiniciar monte correctamente  
+
+Automatico
+
+ls /mnt/OS3_Miercoles                    # comprobar que aparecen los 100 archivos  
+sudo reboot                              # reiniciar la máquina cliente  
+df -h | grep /mnt/OS3_Miercoles          # tras reiniciar, verificar que el recurso ya está montado  
+ls /mnt/OS3_Miercoles                    # ver de nuevo los archivos  
+---------------------------------------------------------------------------
+
+sudo unmount /mnt/OS3
