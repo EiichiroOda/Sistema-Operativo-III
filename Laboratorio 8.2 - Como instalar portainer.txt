@@ -1,0 +1,12 @@
+docker volume create portainer_data #Crear volumen donde se gualdara la data de portainer
+
+docker run -d \
+  -p 8000:8000 \ #Puerto mapeado de docker
+  -p 9443:9443 \ #Acceso seguro de portainer
+  --name portainer \ #Nombre del contenedor
+  --restart=always \ 
+  -v /var/run/docker.sock:/var/run/docker.sock \ #Permite gestionar el docker desde nuestra maquina
+  -v portainer_data:/data \ #Voluemn donde se guardara las configuraciones
+  portainer/portainer-ce:latest #uso de la ultima imagen
+
+https://<IP_DE_TU_SERVIDOR>:9443 #Para conectarme nuestro docker-portainer

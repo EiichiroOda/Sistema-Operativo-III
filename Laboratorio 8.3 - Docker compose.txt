@@ -1,0 +1,38 @@
+# docker compose --version - Ver version de docker compose
+mkdir wordpress_compose -- Crear directorio para instalar compose
+cd wordpress_compose -- Ir al directorio de wordpress
+
+sudo nano docker-compose.yml -- Crear el archivo yml
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_app
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wpdb
+    volumes:
+      - wordpress_data:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: wordpress_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wpdb
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  wordpress_data:
+  db_data:
+
+docker compose up -d -- Montar el docker 
+docker compose ps -- Ver los contenedores actuales y en funcionales
