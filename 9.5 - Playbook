@@ -1,0 +1,33 @@
+sudo nano instalar_apps.yml
+- name: 1. Instalar NGINX en Servidor Linux (Azure)
+  hosts: linux
+  become: yes # Usa 'sudo' para permisos de instalación
+  tasks:
+    - name: Actualizar la caché de paquetes de APT
+      ansible.builtin.apt:
+        update_cache: yes
+      
+    - name: Instalar el paquete NGINX
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        
+    - name: Asegurar que el servicio NGINX esté corriendo
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+
+- name: 2. Instalar Notepad++ en Máquina Windows
+  hosts: win
+  tasks:
+    - name: Instalar Notepad++ con el módulo win_package
+      # URL directa de descarga del instalador de Notepad++ (versión de 64 bits)
+      ansible.windows.win_package:
+        name: Notepad++
+        product_id: Notepad++
+        path: https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.6.1/npp.8.6.1.Installer.x64.exe
+        arguments: /S # La opción /S asegura una instalación silenciosa (sin interacción)
+        state: present
+
+        ansible-playbook instalar_apps.yml
