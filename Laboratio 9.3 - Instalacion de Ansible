@@ -1,0 +1,48 @@
+udo apt update # Actualizar paquetes
+sudo apt install pytho3 python3-pip -y #Instalar dependencias con lo que vamos a trabajar
+sudo apt install python3-venv -y #Instalar esta dpeendencia
+python3 -m venv ~/ansible_venv #Montar un entorno virtual
+source ~/ansible_venv/bin/activate #Activar el entorno virtual 
+pip install pywinrm #Instalar lo necesario para trabajar
+pip install ansible #Instalar ansible 
+ansible --version
+clear
+ssh-copy-id ansible@4.150.201.24
+ssh ansible@4.150.201.24
+sudo nano /etc/ansible/hosts
+[linux]
+azure_host ansible_host=4.150.201.24 ansible_user=ansible
+sudo nano /etc/ansible/hosts
+
+[linux]
+azure_host ansible_host=4.150.201.24 ansible_user=ansible
+
+[win]
+windows ansible_host=10.0.0.172
+
+[win:vars]
+ansible_connection=winrm
+ansible_user=ansible
+ansible_password=Ansible123!
+ansible_winrm_transport=basic
+ansible_winrm_scheme=http
+ansible_winrm_port=5985
+ansible_winrm_server_cert_validation=ignore
+
+ansible linux -m ping
+ansible w
+
+---------------------------------------------------------------------------------------------------
+
+Windows
+
+net user ansible "Ansible123!" /add
+net localgroup Administrators ansible /add
+winrm quickconfig -force
+winrm set winrm/config/service/auth '@{Basic="true"}'
+winrm set winrm/config/client '@{AllowUnencrypted="true"}'
+winrm create winrm/config/Listener?Address=*+Transport=HTTP '@{Port="5985"}'Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP" -Enabled True -Profile Any
+Enable-PSRemoting -Force
+
+ansible win -m win_copy -a "src=C:/Users/ansible/Desktop/archivo.txt dest=C:/Users/ansible/Documents/archivo.txt remote_src=yes"
+ansible linux -m reboot -b --ask-become-pass
