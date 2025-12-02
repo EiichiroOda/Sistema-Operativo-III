@@ -1,0 +1,7 @@
+Laboratorio 9.1 - Instalacion de webmin
+
+wget -q -O- http://www.webmin.com/jcameron-key.asc | sudo gpg --dearmor | sudo tee /etc/apt/keyrings/webmin.gpg
+sudo sh -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" > /etc/apt/sources.list.d/webmin.list'
+sudo apt update
+sudo apt install webmin -y
+https://[Tu_Dirección_IP]:10000
