@@ -1,0 +1,3 @@
+  source ~/ansible_venv/bin/activate
+  ansible linux -m reboot -ask--become-pass
+  ansible win -m win_copy -a "src=C:\\Users\\ansible\\Desktop\\archivo_a_mover.txt dest=C:\\Users\\ansible\\Documents\\archivo_a_mover.txt remote_src=yes"
