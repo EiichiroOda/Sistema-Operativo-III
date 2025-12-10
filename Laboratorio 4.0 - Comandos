@@ -1,0 +1,135 @@
+===================================================================
+Practica 4.1: Practica 1: Instalar un servidor HTTP apache2/nginx
+===================================================================
+# Actualizar repositorios y paquetes (como root o con sudo)
+sudo apt update && sudo apt upgrade -y
+
+# Instalar Apache
+sudo apt install apache2 -y
+
+# Verificar si Apache está activo
+sudo systemctl status apache2
+
+# Verificar si Apache escucha en los puertos
+sudo ss -tulpn | grep apache2
+
+# Configurar ServerName para evitar warnings
+echo "ServerName localhost" | sudo tee -a /etc/apache2/apache2.conf
+
+# Crear carpetas para los Virtual Hosts
+sudo mkdir -p /var/www/practica       # Para puerto 80
+sudo mkdir -p /var/www/mipagina       # Para puerto 8080
+
+#Crear contenido HTML
+echo "Hola Mundo" | sudo tee /var/www/practica/index.html
+echo "Nombre: Wilmer, Matrícula: 123456, Materia: SO3" | sudo tee /var/www/mipagina/index.html
+
+# Crear Virtual Host para puerto 80
+sudo nano /etc/apache2/sites-available/practica.conf
+
+# Contenido del archivo:
+<VirtualHost *:80>
+     ServerAdmin webmaster@localhost
+   DocumentRoot /var/www/matricula
+     ErrorLog ${APACHE_LOG_DIR}/matricula_error.log
+     CustomLog ${APACHE_LOG_DIR}/matricula_access.log combined
+ </VirtualHost>
+
+# Crear Virtual Host para puerto 8080
+sudo nano /etc/apache2/sites-available/mipagina.conf
+ <VirtualHost *:8080>
+      ServerAdmin webmaster@localhost
+      DocumentRoot /var/www/mipagina
+      ErrorLog ${APACHE_LOG_DIR}/mipagina_error.log
+      CustomLog ${APACHE_LOG_DIR}/mipagina_access.log combined
+</VirtualHost>
+
+# Configurar Apache para escuchar en ambos puertos
+sudo nano /etc/apache2/ports.conf
+  
+  Listen 80
+  Listen 8080
+
+# Habilitar Virtual Hosts y deshabilitar el sitio por defecto
+sudo a2dissite 000-default.conf
+sudo a2ensite practica.conf
+sudo a2ensite mipagina.conf
+
+# Reiniciar Apache para aplicar cambios
+sudo systemctl restart apache2
+
+# Probar los sitios
+curl http://localhost        # Debe mostrar "Hola Mundo"
+curl http://localhost:8080   # Debe mostrar "Nombre, Matrícula, Materia"
+
+# Verificar logs en caso de problemas
+sudo tail -f /var/log/apache2/error.log
+sudo tail -f /var/log/apache2/access.log
+
+# Comandos útiles adicionales
+# Verificar IP de la VM
+ip addr show
+
+# Verificar conectividad
+ping -c 3 192.168.X.X      # IP de tu VM o gateway
+ping -c 3 8.8.8.8          # Ping externo para comprobar Internet
+==============================================
+Practica 4.2: Instalar un servidor de correos
+==============================================
+# Instalar Postfix y Mailutils
+sudo apt update
+sudo apt install postfix mailutils -y
+
+# Configurar Postfix interactivamente
+sudo dpkg-reconfigure postfix
+# → Tipo: "Internet Site"
+# → Nombre del correo: ejemplo.com (o tu dominio)
+# → Resto dejar por defecto
+
+# Crear carpeta para autenticación SASL
+sudo mkdir -p /etc/postfix/sasl
+
+# Crear archivo de credenciales SMTP
+sudo nano /etc/postfix/sasl/sasl_passwd
+# [smtp.gmail.com]:587 usuario@gmail.com:contraseña_o_contraseña_de_aplicación
+
+#  Generar el hash del archivo de contraseñas
+sudo postmap /etc/postfix/sasl/sasl_passwd
+
+#Asegurar permisos
+sudo chmod 600 /etc/postfix/sasl/sasl_passwd
+sudo chmod 600 /etc/postfix/sasl/sasl_passwd.db
+
+# Editar el archivo de configuración principal de Postfix
+sudo nano /etc/postfix/main.cf
+# Añadir o editar las siguientes líneas:
+
+# --- INICIO DE CONFIG SMTP GMAIL ---
+relayhost = [smtp.gmail.com]:587
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_tls_security_level = encrypt
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+# --- FIN CONFIG SMTP GMAIL ---
+
+#Reiniciar postfix para aplicar los cambios
+sudo systemctl restart postfix
+
+# Verificar el estado del servicio
+sudo systemctl status postfix
+
+# robar el envío de un correo
+echo "Hola, esto es una prueba" | mail -s "Prueba de Postfix" wilmerbocio04@gmail.com
+
+# Ver logs en tiempo real (útil para debug)
+sudo journalctl -u postfix -f
+
+# Si hay mensajes en cola, reenviarlos
+sudo postqueue -f
+===============================================
+Practica 4.3: Instalar un servidor de Impresion
+===============================================
+
+
+
