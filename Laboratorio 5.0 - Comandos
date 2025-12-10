@@ -1,0 +1,108 @@
+===================================================
+Practica 5.1: Syncronizacion de carpetas con Rsync
+===================================================
+sudo apt update && apt upgrade (Actualizar repositorios)
+
+sudo systemctl status ssh
+
+sudo systemctl start ssh
+
+sudo ss -tulnp | grep ssh
+
+apt-cache policy nombre-del-paquetewh
+
+which rsync
+
+ssh usuario@ip (Comprobar que podamos acceder a ssh)
+
+mkdir -p ~/carpeta_sincronizada (Crear carpeta)
+
+cd ~/carpeta_sincronizada (Dirigirnos a la carpeta)
+
+touch file{1..100}.txt (Crear los 100 archivos)
+
+ls (Comprobar los 100 archivos)
+
+rsync -avz ~/carpeta_sincronizada/ usuario@ip:/home/usuario/carpeta_sincronizada
+
+ssh-keygen -t rsa
+
+cat /home/wilmer_so3/.ssh/id_rsa
+
+ssh-copy-id wilmer_so3@192.168.100.170
+
+sudo hostnamectl set-hostname Servidor_clon
+
+Hostname
+
+exec bash
+
+nano /home/wilmer_so3/sincronizacion.sh
+
+Script de sincronizacion
+-----------------------------------------------------------------------------------
+#!/bin/bash
+
+Origen="/home/wilmer_so3/carpeta_sincronizada/"
+Destino="wilmer_so3@192.168.100.170:/home/wilmer_so3/carpeta_sincronizada/"
+
+echo "===== Sincronización iniciada: $(date) =====" >> /home/wilmer_so3/rsync.log
+
+rsync -avz --delete "$Origen" "$Destino" >> /home/wilmer_so3/rsync.log 2>&1
+-------------------------------------------------------------------------------------
+chmod +x /home/wilmer_so3/sync_rsync.sh
+cat /home/wilmer_so3/rsync.log
+
+crontab -e
+* * * * * /home/wilmer_so3/sincronizacion.sh
+=====================================================
+Practica 5.2: Instalacion y configuracion del Cluster
+=====================================================
+ Cambiar hostname
+sudo hostnamectl set-hostname kali       # nodo 1
+sudo hostnamectl set-hostname wilmerso3clon  # nodo 2
+
+# Editar /etc/hosts
+sudo nano /etc/hosts
+# Añadir algo como:
+127.0.0.1       localhost
+192.168.100.160 kali
+192.168.100.170 wilmerso3clon
+
+sudo apt update
+sudo apt install heartbeat
+sudo systemctl enable heartbeat
+sudo systemctl start heartbeat
+
+sudo nano /etc/ha.d/ha.d.cf
+
+logfile /var/log/ha-log
+keepalive 2
+deadtime 10
+udpport 694
+ucast eth0 192.168.100.160
+ucast eth0 192.168.100.170
+auto_failback off
+node kali
+node wilmerso3clon
+
+/etc/ha.d/haresources
+kali1 192.168.100.200/24 eth0t
+
+
+sudo nano /etc/ha.d/authkeys
+sudo nano /etc/ha.d/authkeys
+
+auth 1
+1 sha1 wilmer123
+
+sudo systemctl restart heartbeat
+sudo systemctl status heartbeat
+# Comprobar logs
+tail -f /var/log/ha-log
+
+sudo apt install heartbeat
+=================================================
+Practica 5.3: Cluster de Alta Disponibilidad HTTP
+=================================================
+
