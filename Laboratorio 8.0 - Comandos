@@ -1,0 +1,115 @@
+====================================================
+Practica 8.1: Instalacion y configuracion de Docker.
+====================================================
+sudo apt update 
+sudo apt install -y ca-certificates curl gnupg 
+
+# Añadir clave GPG
+
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Añadir repositorio oficial 
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Instalar Docker Engine
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+Verifica que funciona:
+sudo systemctl status docker
+
+#Descargar la imagen de NGINX desde Docker Hub
+
+sudo docker pull nginx
+
+#Crear el directorio para el volumen persistente
+
+sudo mkdir -p /home/website
+
+#Crear el contenedor con mapeo de puertos y volumen.
+
+sudo docker run -d --name miweb \
+  -p 8888:80 \
+  -v /home/website:/usr/share/nginx/html \
+  nginx
+
+#Crear una página HTML sencilla
+
+sudo nano /home/website/index.html
+
+<html>
+<head>
+    <title>Mi primera página con Docker</title>
+</head>
+<body>
+    <h1>Wilmer De Jesús Camacho Bocio</h1>
+    <h2>Matrícula: 2024-1137</h2>
+    <p>Servidor web usando NGINX y Docker</p>
+</body>
+</html>
+Guarda con CTRL + O, Enter, y sales con CTRL + X.
+
+http://127.0.0.1:8888
+
+sudo docker restart miweb # Para reiniciar el contenedor
+=========================================
+Practica 8.2: Instalacion de Portainer 
+=========================================
+docker volume create portainer_data #Crear volumen donde se gualdara la data de portainer
+
+docker run -d \
+  -p 8000:8000 \ #Puerto mapeado de docker
+  -p 9443:9443 \ #Acceso seguro de portainer
+  --name portainer \ #Nombre del contenedor
+  --restart=always \ 
+  -v /var/run/docker.sock:/var/run/docker.sock \ #Permite gestionar el docker desde nuestra maquina
+  -v portainer_data:/data \ #Voluemn donde se guardara las configuraciones
+  portainer/portainer-ce:latest #uso de la ultima imagen
+
+https://<IP_DE_TU_SERVIDOR>:9443 #Para conectarme nuestro docker-portainer
+==============================================================================
+Practica 8.3: Despliegue de contenedor de Wordpress utilizando Docker-Compose
+==============================================================================
+# docker compose --version - Ver version de docker compose
+mkdir wordpress_compose -- Crear directorio para instalar compose
+cd wordpress_compose -- Ir al directorio de wordpress
+
+sudo nano docker-compose.yml -- Crear el archivo yml
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_app
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wpdb
+    volumes:
+      - wordpress_data:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: wordpress_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wpdb
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  wordpress_data:
+  db_data:
+
+docker compose up -d -- Montar el docker 
+docker compose ps -- Ver los contenedores actuales y en funcionales
+
