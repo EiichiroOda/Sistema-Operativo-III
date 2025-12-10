@@ -1,0 +1,126 @@
+===============================================================
+Practica 7.1: compartir archivos entre linux utilizando NFS
+==============================================================
+sudo apt update
+sudo apt install nfs‑kernel‑server -y        # instalar servidor NFS  
+sudo mkdir -p /srv/OS3                        # crear directorio compartido  
+cd /srv/OS3_Miercoles
+touch Adrian{1..100}.txt # crear 100 archivos  
+sudo chown -R nobody:nogroup /srv/OS3         # asignar propietario  
+sudo chmod -R 755 /srv/OS3                     # asignar permisos  
+sudo nano /etc/exports                         # editar fichero de exportaciones  
+# añadir en /etc/exports:  
+# /srv/OS3_Mierco *(rw,sync,no_subtree_check)  
+sudo exportfs -ra                              # aplicar cambios  
+sudo systemctl restart nfs‑kernel‑server       # reiniciar servicio  
+sudo exportfs -v                              # comprobar exportaciones  
+------------------------------------------------------------------------
+sudo apt update
+sudo apt install nfs‑common -y           # instalar cliente NFS  
+sudo mkdir -p /srv/SO3         # crear punto de montaje  
+sudo mount 10.0.0.170:/srv/OS3 /srv/SO3  # montar recurso compartido  
+ls /srv/OS3                              # listar archivos y comprobar que estén  
+sudo nano /etc/fstab                     # editar para montaje automático  
+# añadir en /etc/fstab:  
+# 10.0.0.170:/srv/OS3   /srv/SO3  nfs   defaults   0   0  
+sudo mount -a                            # probar que sin reiniciar monte correctamente  
+
+Automatico
+
+ls /mnt/OS3_Miercoles                    # comprobar que aparecen los 100 archivos  
+sudo reboot                              # reiniciar la máquina cliente  
+df -h | grep /mnt/OS3_Miercoles          # tras reiniciar, verificar que el recurso ya está montado  
+ls /mnt/OS3_Miercoles                    # ver de nuevo los archivos  
+sudo unmount /mnt/OS3
+=========================================================================================
+Practica 7.2 - Practica 2: Creacion de fileserver compatible con Windows utilizando SAMBA
+=========================================================================================
+sudo apt install samba -y
+
+sudo systemctl enable smbd --now
+sudo systemctl enable nmbd --now
+sudo systemctl status smbd
+
+sudo mkdir -p /srv/samba/compartida
+sudo groupadd sambagrupo
+
+sudo chown -R root:sambagrupo /srv/samba/compartida
+sudo chmod -R 2770 /srv/samba/compartida
+
+sudo passwd adrianuser
+sudo usermod -aG sambagrupo adrianuser
+
+sudo smbpasswd -a adrianuser
+sudo smbpasswd -e adrianuser
+sudo nano /etc/samba/smb.conf
+[Compartido]
+   path = /srv/samba/compartida
+   browseable = yes
+   writable = yes
+   valid users = @sambagrupo
+   create mask = 0660
+   directory mask = 2770
+sudo systemctl restart smbd
+touch Adrian{1..100}.txt
+ls -l /srv/samba/compartida
+\\IP_DE_TU_LINUX\Compartida
+====================================================================
+Practica 7.3: Creacion de controlador de Dominio con cliente Windows 
+====================================================================
+sudo nano /etc/hosts
+192.168.100.238 dc.os3.intet 
+sudo hostnamectl set-hostname dc.os3.inet 
+sudo hostnamectl 
+ping dc.os3.inet 
+- sudo apt install samba -y 
+
+sudo nano /etc/krb5.conf
+[libdefaults]
+    default_realm = OS3.INET
+    dns_lookup_realm = false
+    dns_lookup_kdc = true
+ 
+ 
+[realms]
+    OS3.INET = {
+        kdc = dc.os3.inet
+        admin_server = dc.os3.inet
+    }
+ 
+[domain_realm]
+    .os3.inet = OS3.INET
+    os3.inet = OS3.INET
+
+
+sudo samba-tool domain provision --use-rfc2307 --interactive
+	
+sudo samba-tool domain provision --use-rfc2307 --interactive
+Realm: OS3.INET
+Domain: OS3
+Server Role: dc
+DNS backend: SAMBA_INTERNAL
+DNS forwarder IP address: 8.8.8.8 
+Administrator password: Teletubies123
+
+sudo systemctl restart samba-ad-dc
+sudo systemctl status samba-ad-dc
+
+----------------------------------------------
+Comando samba:
+
+- sudo samba-tool user list #Ver usuarios
+  sudo samba-tool user enable juan
+--------------------------------------------
+Comprobar DNS y configuraciones:
+
+- host OS3.INET
+- nslookup OS3.INET
+- nslookup IP_Maquina OS3.INET
+- host -t SRV _ldap._tcp.dc._msdcs.os3.inet
+- host -t SRV _kerberos._tcp.dc._msdcs.os3.inet
+- nslookup dc.os3.inet
+- dig @127.0.0.1 dc.os3.inet A
+- kinit Administrator
+  klist
+- sudo netstat -tulnp | grep -E '53|88|389'
+
