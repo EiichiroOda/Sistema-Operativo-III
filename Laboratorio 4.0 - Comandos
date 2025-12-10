@@ -30,7 +30,7 @@ sudo nano /etc/apache2/sites-available/practica.conf
 # Contenido del archivo:
 <VirtualHost *:80>
      ServerAdmin webmaster@localhost
-   DocumentRoot /var/www/matricula
+   DocumentRoot /var/www/html/Pagina_2
      ErrorLog ${APACHE_LOG_DIR}/matricula_error.log
      CustomLog ${APACHE_LOG_DIR}/matricula_access.log combined
  </VirtualHost>
