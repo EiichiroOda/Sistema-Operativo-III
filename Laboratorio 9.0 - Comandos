@@ -237,3 +237,13 @@ sudo nano instalar_apps.yml
         state: present
 
         ansible-playbook instalar_apps.yml
+==
+net user ansible asdf4321 /add
+net localgroup Administrators ansible /add
+Get-NetConnectionProfile
+Set-NetConnectionProfile -InterfaceAlias "Ethernet0" -NetworkCategory Private
+Enable-PSRemoting -Force
+winrm set winrm/config/service/auth '@{Basic="true"}'
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+netsh advfirewall firewall add rule name="WinRM HTTP" dir=in action=allow protocol=TCP localport=5985
+winrm quickconfig
