@@ -1,0 +1,242 @@
+# Ver conexiones disponibles
+nmcli connection show
+
+# Configurar conexión para usar DHCP
+sudo nmcli connection modify "nombre-conexion" ipv4.method auto
+sudo nmcli connection down "nombre-conexion"
+sudo nmcli connection up "nombre-conexion"
+
+Configurar IP Estática con nmcli:
+
+# Configurar IP estática
+sudo nmcli connection modify "nombre-conexion" ipv4.method manual
+sudo nmcli connection modify "nombre-conexion" ipv4.addresses 192.168.1.100/24
+sudo nmcli connection modify "nombre-conexion" ipv4.gateway 192.168.1.1
+sudo nmcli connection modify "nombre-conexion" ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli connection down "nombre-conexion"
+sudo nmcli connection up "nombre-conexion"
+
+Método 2: Editando /etc/network/interfaces
+Configurar DHCP:
+sudo nano /etc/network/interfaces
+
+# Agregar estas líneas:
+auto eth0
+iface eth0 inet dhcp
+
+# Reiniciar servicio
+sudo systemctl restart networking
+Configurar IP Estática:
+bashsudo nano /etc/network/interfaces
+
+# Agregar estas líneas:
+auto eth0
+iface eth0 inet static
+    address 192.168.1.100
+    netmask 255.255.255.0
+    gateway 192.168.1.1
+    dns-nameservers 8.8.8.8 8.8.4.4
+
+# Reiniciar servicio
+sudo systemctl restart networking
+Método 3: Usando ip y dhclient (temporal)
+Configurar DHCP:
+# Obtener IP por DHCP
+sudo dhclient eth0
+
+# O renovar el lease
+sudo dhclient -r eth0
+sudo dhclient eth0
+
+Configurar IP Estática (temporal):
+# Asignar IP estática
+sudo ip addr add 192.168.1.100/24 dev eth0
+sudo ip link set eth0 up
+sudo ip route add default via 192.168.1.1
+
+Método 4: Usando netplan (si está disponible)
+sudo nano /etc/netplan/01-netcfg.yaml
+
+# Para DHCP:
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+
+# Para IP Estática:
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses: [192.168.1.100/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+
+# Aplicar cambios
+sudo netplan apply
+Configurar DNS de Google (8.8.8.8 - 8.8.4.4)
+Método 1: Editar /etc/resolv.conf
+sudo nano /etc/resolv.conf
+
+# Agregar:
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+Método 2: Editar /etc/resolvconf/resolv.conf.d/head
+sudo nano /etc/resolvconf/resolv.conf.d/head
+
+# Agregar:
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+# Actualizar
+sudo resolvconf -u
+
+Método 3: Con nmcli
+bashsudo nmcli connection modify "nombre-conexion" ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli connection down "nombre-conexion"
+sudo nmcli connection up "nombre-conexion"
+
+Comandos para verificar configuración:
+Ver configuración de red
+ip addr show
+ip a
+
+# Ver ruta predeterminada
+ip route show
+
+# Ver DNS configurados
+cat /etc/resolv.conf
+
+# Probar conectividad
+ping -c 4 8.8.8.8
+ping -c 4 google.com
+
+Práctica 3: Gestión de Usuarios y Grupos
+Crear usuario con tu nombre y agregarlo a sudoers:
+# Crear usuario (reemplaza "tunombre" con tu nombre real)
+sudo adduser tunombre
+
+# Agregar al grupo sudo
+sudo usermod -aG sudo tunombre
+
+# Verificar que está en el grupo
+groups tunombre
+Crear grupo "guest", crear usuario y agregarlo:
+# Crear grupo guest
+sudo groupadd guest
+
+# Crear usuario invitado
+sudo adduser usuario_invitado
+
+# Agregar usuario al grupo guest
+sudo usermod -aG guest usuario_invitado
+
+# Verificar
+groups usuario_invitado
+Eliminar usuario y grupo:
+
+# Eliminar usuario (con su directorio home)
+sudo userdel -r usuario_invitado
+
+# Eliminar grupo
+sudo groupdel guest
+
+# Verificar eliminación
+cat /etc/passwd | grep usuario_invitado
+cat /etc/group | grep guest
+
+Práctica 4: Gestión de Permisos de Archivos
+Crear carpeta, archivo y editarlo con vi:
+# Crear carpeta materia
+mkdir materia
+
+# Crear archivo estudiante.txt
+cd materia
+touch estudiante.txt
+
+# Editar con vi
+vi estudiante.txt
+
+# Dentro de vi:
+# Presiona 'i' para entrar en modo INSERT
+# Escribe: Nombre: Tu Nombre
+#         Matrícula: Tu Matrícula
+# Presiona ESC
+# Escribe :wq y presiona ENTER para guardar y salir
+Modificar permisos - solo propietario con control total:
+bash# Control total solo para el propietario (rwx------)
+chmod 700 estudiante.txt
+
+# O usando notación simbólica
+chmod u=rwx,g=,o= estudiante.txt
+
+# Verificar permisos
+ls -l estudiante.txt
+Modificar permisos - solo grupo propietario con control total:
+# Control total solo para el grupo (---rwx---)
+chmod 070 estudiante.txt
+
+# O usando notación simbólica
+chmod u=,g=rwx,o= estudiante.txt
+
+# Verificar permisos
+ls -l estudiante.txt
+Crear nueva carpeta y copiar archivo:
+
+# Volver al directorio padre
+cd ..
+
+# Crear carpeta materia2
+mkdir materia2
+
+# Copiar archivo estudiante.txt a materia2
+cp materia/estudiante.txt materia2/
+
+# Verificar
+ls -l materia2/
+Eliminar carpeta materia con su contenido:
+# Eliminar carpeta materia y todo su contenido
+rm -rf materia
+
+# Verificar eliminación
+ls -l
+
+Comandos Útiles Adicionales
+Verificación de usuarios y grupos:
+bash# Ver todos los usuarios
+cat /etc/passwd
+
+# Ver todos los grupos
+cat /etc/group
+
+# Ver grupos del usuario actual
+groups
+
+# Ver información de un usuario específico
+id tunombre
+Verificación de permisos:
+bash# Ver permisos en formato largo
+ls -l
+
+# Ver permisos en formato octal
+stat -c '%a %n' archivo.txt
+
+# Ver permisos recursivamente
+ls -lR
+Información de red:
+bash# Ver todas las interfaces
+ip link show
+
+# Ver estadísticas de red
+ip -s link
+
+# Ver tabla de enrutamiento
+route -n
+
+# Ver conexiones activas
+ss -tuln
+netstat -tuln
