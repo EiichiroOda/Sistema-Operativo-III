@@ -112,4 +112,10 @@ volumes:
 
 docker compose up -d -- Montar el docker 
 docker compose ps -- Ver los contenedores actuales y en funcionales
+===============================================================
+docker run -d \
+  --name mi_contenedor \
+  -p 192.168.10.100:80:80 \
+  nginx
+
 
