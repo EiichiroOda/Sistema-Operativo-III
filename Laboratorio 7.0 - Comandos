@@ -1,3 +1,4 @@
+
 ===============================================================
 Practica 7.1: compartir archivos entre linux utilizando NFS
 ==============================================================
@@ -205,4 +206,63 @@ Ingresa las credenciales del administrador cuando se te solicite (usuario: Admin
 
 
 luego de que se agregue al dominio nos pedirá reiniciar y al terminar el reinicio, agregamos otro usuario(lanegracubana)
+===================
+terraform {
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "2.34.1"
+    }
+  }
+}
+
+# =============================
+#  TOKEN DE DIGITALOCEAN
+# =============================
+variable "do_token" {
+  description = "Token de DigitalOcean"
+  type        = string
+}
+
+provider "digitalocean" {
+  token = var.do_token
+}
+
+# =============================
+#  TU SSH KEY
+# =============================
+resource "digitalocean_ssh_key" "my_key" {
+  name       = "clave-terraform"
+  public_key = file("~/.ssh/id_ed25519.pub")
+}
+
+# =============================
+#  SSH KEY DEL PROFESOR
+# =============================
+resource "digitalocean_ssh_key" "profesor_key" {
+  name       = "clave-profesor"
+  public_key = file("profesor.pub")
+}
+
+# =============================
+#  DROPLET CON AMBAS LLAVES
+# =============================
+resource "digitalocean_droplet" "mi_vm" {
+  name     = "terraform-droplet"
+  region   = "nyc3"
+  size     = "s-1vcpu-1gb"
+  image    = "ubuntu-22-04-x64"
+
+  ssh_keys = [
+    digitalocean_ssh_key.my_key.id,
+    digitalocean_ssh_key.profesor_key.id
+  ]
+}
+
+# =============================
+#  IP DEL DROPLET
+# =============================
+output "droplet_ip" {
+  value = digitalocean_droplet.mi_vm.ipv4_address
+}
 
