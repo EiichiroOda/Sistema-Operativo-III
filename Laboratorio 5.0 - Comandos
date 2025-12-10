@@ -105,4 +105,78 @@ sudo apt install heartbeat
 =================================================
 Practica 5.3: Cluster de Alta Disponibilidad HTTP
 =================================================
+sudo nano /etc/hosts
+```
 
+**Agregar estas líneas:**
+```
+192.168.100.201 server1
+192.168.100.202 server2
+=================
+# Configuración Heartbeat - Server 1
+debugfile /var/log/ha-debug
+logfile /var/log/ha-log
+logfacility local0
+
+# Intervalos de tiempo
+keepalive 2
+deadtime 10
+warntime 5
+initdead 60
+
+# Puerto UDP para comunicación
+udpport 694
+
+# Comunicación unicast (punto a punto)
+ucast eth0 192.168.100.202
+
+# Failback automático al servidor principal
+auto_failback on
+
+# Nodos del cluster
+node server1
+node server2
+=================
+# Configuración Heartbeat - Server 2
+debugfile /var/log/ha-debug
+logfile /var/log/ha-log
+logfacility local0
+
+# Intervalos de tiempo
+keepalive 2
+deadtime 10
+warntime 5
+initdead 60
+
+# Puerto UDP para comunicación
+udpport 694
+
+# Comunicación unicast (punto a punto)
+ucast eth0 192.168.100.201
+
+# Failback automático al servidor principal
+auto_failback on
+
+# Nodos del cluster
+node server1
+node server2
+
+==================
+sudo nano /etc/ha.d/authkeys
+# Dar permisos restrictivos (MUY IMPORTANTE)
+sudo chmod 600 /etc/ha.d/authkeys
+
+# Verificar permisos
+ls -l /etc/ha.d/authkeys
+# Debe mostrar: -rw------- 1 root root
+=============================
+sudo nano /etc/ha.d/haresources
+server1 IPaddr::192.168.100.100/24/eth0 
+# Ver log principal
+sudo tail -f /var/log/ha-log
+
+# Ver debug
+sudo tail -f /var/log/ha-debug
+
+# Ver logs del sistema
+sudo journalctl -u heartbeat -f
