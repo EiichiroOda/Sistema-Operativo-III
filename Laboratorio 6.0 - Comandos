@@ -76,3 +76,21 @@ alert tcp any any -> any 22 (msg:"SSH Intento de conexion detectada"; sid:100000
 
 alert tcp any any -> any 80 (msg:"HTTP Intento de conexion detectada"; sid:1000004; rev:1;)
 
+=================================================================================
+Practica 6.4: Configurar 2FA con google authenticator Modulo PAM para Acceso SSH
+=================================================================================
+sudo systemctl status ssh # Comprobar estado de ssh
+dpkg -l | grep libpam # Verificar si modulo pam esta instalado
+sudo apt install libpam-google-authenticator -y # Permite al PAM usar tokens TOTP (Time-based One-Time-Password)
+google-authenticator # Para configurar el ssh, a todo diremos que si 
+sudo nano /etc/pam.d/sshd # Para configurar el modulo pam en ssh
+auth required pam_google_authenticator.so # linea que agregaremos al final 
+sudo nano /etc/ssh/sshd_config # Configuraramos el modulo ahora de ssh y agregamos las siguientes lineas
+UsePAM yes
+ChallengeResponseAuthentication yes
+PasswordAuthentication yes
+sudo systemctl restart ssh
+sudo systemctl status ssh
+
+ssh usuario@ip_maquina
+
